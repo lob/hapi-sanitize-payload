@@ -32,6 +32,21 @@ describe('plugin', function () {
     }
   }]);
 
+  it('fails to load when given bad options', function () {
+    var failingServer = new Hapi.Server();
+    failingServer.connection({ port: 8080 });
+
+    failingServer.register([{
+      register: require('../lib'),
+      options: {
+        pruneMethod: 'delete',
+        replaceValue: null
+      }
+    }], function (err) {
+      expect(err).to.be.instanceof(Error);
+    });
+  });
+
   it('strips null characters from strings', function () {
     return server.injectThen({
       method: 'POST',
@@ -136,6 +151,51 @@ describe('plugin', function () {
     })
     .catch(function () {
       expect.fail();
+    });
+  });
+
+  it('replaces pruned values when specified as an option', function () {
+    var replacingServer = new Hapi.Server();
+    replacingServer.connection({ port: 80 });
+
+    replacingServer.register([
+      require('inject-then'),
+      {
+        register: require('../lib'),
+        options: {
+          pruneMethod: 'replace',
+          replaceValue: null
+        }
+      }
+    ], function () { });
+
+    replacingServer.route([{
+      method: 'POST',
+      path: '/sanitize_payload',
+      config: {
+        handler: function (request, reply) {
+          reply(request.payload);
+        }
+      }
+    }]);
+
+    return replacingServer.injectThen({
+      method: 'POST',
+      url: '/sanitize_payload',
+      payload: {
+        string: 'foo',
+        empty: '',
+        blank: '  \t\n ',
+        nullCharacter: '\0 '
+      }
+    })
+    .then(function (response) {
+      expect(response.result).to.eql({
+        string: 'foo',
+        empty: null,
+        blank: null,
+        nullCharacter: null
+      });
     });
   });
 

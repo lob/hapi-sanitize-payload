@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/lob/hapi-sanitize-payload",
   "dependencies": {
+    "joi": "^6.10.1",
     "is-whitespace": "^0.3.0",
     "lodash.isstring": "^4.0.1",
     "lodash.isplainobject": "^4.0.3",
