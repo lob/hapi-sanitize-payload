@@ -199,4 +199,44 @@ describe('plugin', function () {
     });
   });
 
+  it('prunes null values when specified as an option', function () {
+    var noNullServer = new Hapi.Server();
+    noNullServer.connection({ port: 80 });
+
+    noNullServer.register([
+      require('inject-then'),
+      {
+        register: require('../lib'),
+        options: {
+          stripNull: true,
+          pruneMethod: 'delete'
+        }
+      }
+    ], function () { });
+
+    noNullServer.route([{
+      method: 'POST',
+      path: '/sanitize_payload',
+      config: {
+        handler: function (request, reply) {
+          return reply(request.payload);
+        }
+      }
+    }]);
+
+    return noNullServer.injectThen({
+      method: 'POST',
+      url: '/sanitize_payload',
+      payload: {
+        thisIsNull: null,
+        thisIsNot: 'not'
+      }
+    })
+    .then(function (response) {
+      expect(response.result).to.eql({
+        thisIsNot: 'not'
+      });
+    });
+  });
+
 });
