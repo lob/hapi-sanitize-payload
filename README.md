@@ -7,6 +7,7 @@ Currently uses the following rules:
 - Removes null characters (ie. `\0`) from string values
 - Deletes from the payload keys with a value of empty string (ie. `''`), or optionally replaces them with a different value
 - Deletes from the payload keys with a value consisting entirely of whitespace (ie. `' \t\n '`), or optionally replaces them with a different value
+- Optionally deletes/replaces `null` values
 
 ## Registering the plugin
 
@@ -28,3 +29,4 @@ server.register([
   - `'delete'` - the key will be removed from the payload entirely (ie. `{ a: '', b: 'b' }` :arrow_right: `{ b: 'b' }`)
   - `'replace'` - the key will be preserved, but its value will be replaced with the value of `replaceValue`
 - `replaceValue` - valid only when `pruneMethod` is set to `'replace'`, this value will be used as the replacement of any pruned values (ie. if configured as `null`, then `{ a: '', b: 'b' }` :arrow_right: `{ a: null, b: 'b' }`)
+- `stripNull` - a boolean value to signify whether or not `null` properties should be pruned with the same `pruneMethod` and `replaceValue` as above
