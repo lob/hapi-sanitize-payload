@@ -1,3 +1,9 @@
+### 1.2.0 (2016-7-21)
+
+##### New Features
+
+* **options:** support option for sanitizing null properties. ([805f9caf](https://github.com/lob/hapi-sanitize-payload/commit/805f9cafd7f2d0092bc1a6082047ef3c24d631e5))
+
 ### 1.1.0 (2016-3-18)
 
 ##### New Features
