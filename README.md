@@ -7,6 +7,7 @@ Currently uses the following rules:
 - Removes null characters (ie. `\0`) from string values
 - Deletes from the payload keys with a value of empty string (ie. `''`), or optionally replaces them with a different value
 - Deletes from the payload keys with a value consisting entirely of whitespace (ie. `' \t\n '`), or optionally replaces them with a different value
+- Deletes whitespace from ends of string (ie. `'      text      '` becomes `'text'`)
 - Optionally deletes/replaces `null` values
 
 ## Registering the plugin

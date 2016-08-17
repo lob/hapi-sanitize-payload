@@ -64,6 +64,21 @@ describe('plugin', function () {
     });
   });
 
+  it('trims whitespace from ends of strings', function () {
+    var whitespaceString = '       suchwhitespace  wow        ';
+
+    return server.injectThen({
+      method: 'POST',
+      url: '/sanitize_payload',
+      payload: {
+        whitespaceString: whitespaceString
+      }
+    })
+    .then(function (response) {
+      expect(response.result.whitespaceString).to.eql(whitespaceString.trim());
+    });
+  });
+
   it('removes keys for values that are blank or empty', function () {
     return server.injectThen({
       method: 'POST',
