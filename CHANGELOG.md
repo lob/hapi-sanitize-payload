@@ -1,3 +1,9 @@
+### 1.3.0 (2016-8-17)
+
+##### New Features
+
+* **whitespace:** trims whitespace from ends of string ([9449c35d](https://github.com/lob/hapi-sanitize-payload/commit/9449c35d43f188d373f620aeae9cbce52d7d6a19))
+
 ### 1.2.0 (2016-7-21)
 
 ##### New Features
