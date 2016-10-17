@@ -254,4 +254,60 @@ describe('plugin', function () {
     });
   });
 
+  it('allows plugin to be disabled', function () {
+    var noNullServer = new Hapi.Server();
+    noNullServer.connection({ port: 80 });
+
+    noNullServer.register([
+      require('inject-then'),
+      {
+        register: require('../lib'),
+        options: {
+          stripNull: true,
+          pruneMethod: 'delete'
+        }
+      }
+    ], function () { });
+
+    noNullServer.route([{
+      method: 'POST',
+      path: '/sanitize_payload_strip_null',
+      config: {
+        handler: function (request, reply) {
+          return reply(request.payload);
+        }
+      }
+    }, {
+      method: 'POST',
+      path: '/sanitize_payload_no_strip_null',
+      config: {
+        plugins: {
+          sanitize: { enabled: false }
+        },
+        handler: function (request, reply) {
+          return reply(request.payload);
+        }
+      }
+    }]);
+
+    var payload = {
+      thisIsNull: null,
+      thisIsNot: 'not'
+    };
+
+    return noNullServer.injectThen({ method: 'POST', url: '/sanitize_payload_strip_null', payload: payload })
+    .then(function (stripNullResponse) {
+      expect(stripNullResponse.result).to.eql({
+        thisIsNot: 'not'
+      });
+      return noNullServer.injectThen({ method: 'POST', url: '/sanitize_payload_no_strip_null', payload: payload });
+    })
+    .then(function (disabledResponse) {
+      expect(disabledResponse.result).to.eql({
+        thisIsNull: null,
+        thisIsNot: 'not'
+      });
+    });
+  });
+
 });
