@@ -31,3 +31,20 @@ server.register([
   - `'replace'` - the key will be preserved, but its value will be replaced with the value of `replaceValue`
 - `replaceValue` - valid only when `pruneMethod` is set to `'replace'`, this value will be used as the replacement of any pruned values (ie. if configured as `null`, then `{ a: '', b: 'b' }` :arrow_right: `{ a: null, b: 'b' }`)
 - `stripNull` - a boolean value to signify whether or not `null` properties should be pruned with the same `pruneMethod` and `replaceValue` as above
+
+You can also set disable the plugin on a route-by-route basis too using the `sanitize` plugin object.
+
+```js
+server.route({
+  method: 'POST',
+  path: '/users',
+  config: {
+    plugins: {
+      sanitize: { enabled: false }
+    },
+    handler: function () {
+      // handler logic
+    }
+  }
+});
+```
