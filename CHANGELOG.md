@@ -1,3 +1,9 @@
+### 1.4.0 (2016-10-18)
+
+##### New Features
+
+* **config:** allow disabling in the route config ([c0fc2fb8](https://github.com/lob/hapi-sanitize-payload/commit/c0fc2fb860b663da93e4873c97688cc15af907bf))
+
 ### 1.3.0 (2016-8-17)
 
 ##### New Features
