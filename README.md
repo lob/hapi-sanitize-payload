@@ -26,13 +26,14 @@ server.register([
 
 ## Options
 
-- `pruneMethod` - the method the sanitizer uses when a value that is to be pruned is encountered. The value must be one of:
-  - `'delete'` - the key will be removed from the payload entirely (ie. `{ a: '', b: 'b' }` :arrow_right: `{ b: 'b' }`)
-  - `'replace'` - the key will be preserved, but its value will be replaced with the value of `replaceValue`
-- `replaceValue` - valid only when `pruneMethod` is set to `'replace'`, this value will be used as the replacement of any pruned values (ie. if configured as `null`, then `{ a: '', b: 'b' }` :arrow_right: `{ a: null, b: 'b' }`)
-- `stripNull` - a boolean value to signify whether or not `null` properties should be pruned with the same `pruneMethod` and `replaceValue` as above
+- `enabled` - whether or not the plugin is enabled.
+- `pruneMethod` - the method the sanitizer uses when a value that is to be pruned is encountered. Defaults to `'delete'`. The value must be one of:
+  - `'delete'` - the key will be removed from the payload entirely (ie. `{ a: '', b: 'b' }` :arrow_right: `{ b: 'b' }`).
+  - `'replace'` - the key will be preserved, but its value will be replaced with the value of `replaceValue`.
+- `replaceValue` - valid only when `pruneMethod` is set to `'replace'`, this value will be used as the replacement of any pruned values (ie. if configured as `null`, then `{ a: '', b: 'b' }` :arrow_right: `{ a: null, b: 'b' }`).
+- `stripNull` - a boolean value to signify whether or not `null` properties should be pruned with the same `pruneMethod` and `replaceValue` as above. Defaults to `false`.
 
-You can also set disable the plugin on a route-by-route basis too using the `sanitize` plugin object.
+Each of the above options can be configured on a route-by-route basis via the `sanitize` plugin object.
 
 ```js
 server.route({

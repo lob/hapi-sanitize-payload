@@ -26,19 +26,19 @@
   "homepage": "https://github.com/lob/hapi-sanitize-payload",
   "dependencies": {
     "joi": "^9.2.0",
-    "is-whitespace": "^0.3.0",
     "lodash.isstring": "^4.0.1",
     "lodash.isplainobject": "^4.0.6",
-    "lodash.clonedeep": "^4.5.0"
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.unset": "^4.5.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint": "^1.10.3",
     "eslint-config-lob": "^2.3.0",
+    "eslint-plugin-lob": "^1.0.1",
     "generate-changelog": "^1.0.2",
-    "istanbul": "^0.4.5",
-    "mocha": "^3.1.2",
     "hapi": "^15.2.0",
-    "inject-then": "^2.0.5"
+    "istanbul": "^0.4.5",
+    "mocha": "^3.1.2"
   }
 }

@@ -1,312 +1,121 @@
 'use strict';
 
-var expect = require('chai').expect;
-var Hapi = require('hapi');
+const Hapi = require('hapi');
 
-describe('plugin', function () {
+const Plugin = require('../lib');
 
-  var server = new Hapi.Server();
+function fixture (options, routes) {
+  const server = new Hapi.Server();
+
   server.connection({ port: 80 });
 
-  server.register([
-    require('inject-then'),
-    require('../lib')
-  ], function () { });
+  return server.register([{
+    register: Plugin,
+    options
+  }])
+  .then(() => server.route(routes))
+  .then(() => server);
+}
 
-  server.route([{
-    method: 'GET',
-    path: '/sanitize_payload',
-    config: {
-      handler: function (request, reply) {
-        reply(request.payload);
-      }
-    }
-  },
-  {
-    method: 'POST',
-    path: '/sanitize_payload',
-    config: {
-      handler: function (request, reply) {
-        reply(request.payload);
-      }
-    }
-  }]);
+function handler (request, reply) {
+  reply(request.payload);
+}
 
-  it('fails to load when given bad options', function () {
-    var failingServer = new Hapi.Server();
-    failingServer.connection({ port: 8080 });
+describe('plugin', () => {
 
-    failingServer.register([{
-      register: require('../lib'),
-      options: {
-        pruneMethod: 'delete',
-        replaceValue: null
-      }
-    }], function (err) {
-      expect(err).to.be.instanceof(Error);
-    });
+  it('fails to load when given bad options', () => {
+    return fixture({ invalid: true })
+    .catch((err) => err)
+    .then((err) => expect(err).to.be.instanceOf(Error));
   });
 
-  it('strips null characters from strings', function () {
-    return server.injectThen({
-      method: 'POST',
-      url: '/sanitize_payload',
-      payload: {
-        unstripped: 'foo',
-        stripped: 'b\0ar'
-      }
-    })
-    .then(function (response) {
-      expect(response.result).to.eql({
-        unstripped: 'foo',
-        stripped: 'bar'
-      })
-    });
-  });
-
-  it('trims whitespace from ends of strings', function () {
-    var whitespaceString = '       suchwhitespace  wow        ';
-
-    return server.injectThen({
-      method: 'POST',
-      url: '/sanitize_payload',
-      payload: {
-        whitespaceString: whitespaceString
-      }
-    })
-    .then(function (response) {
-      expect(response.result.whitespaceString).to.eql(whitespaceString.trim());
-    });
-  });
-
-  it('removes keys for values that are blank or empty', function () {
-    return server.injectThen({
-      method: 'POST',
-      url: '/sanitize_payload',
-      payload: {
-        string: 'foo',
-        empty: '',
-        blank: '  \t\n ',
-        nullCharacter: '\0 '
-      }
-    })
-    .then(function (response) {
-      expect(response.result).to.eql({ string: 'foo' });
-    });
-  });
-
-  it('does not remove keys for non-string values', function () {
-    return server.injectThen({
-      method: 'POST',
-      url: '/sanitize_payload',
-      payload: {
-        number: 20,
-        null: null,
-        object: {},
-        array: []
-      }
-    })
-    .then(function (response) {
-      expect(response.result).to.eql({
-        number: 20,
-        null: null,
-        object: {},
-        array: []
-      });
-    });
-  });
-
-  it('sanitizes nested objects', function () {
-    return server.injectThen({
-      method: 'POST',
-      url: '/sanitize_payload',
-      payload: {
-        object: {
-          string: 'foo',
-          empty: '',
-          object: {
-            string: 'bar',
-            blank: '  \t\n '
-          }
-        }
-      }
-    })
-    .then(function (response) {
-      expect(response.result).to.eql({
-        object: {
-          string: 'foo',
-          object: { string: 'bar' }
-        }
-      });
-    });
-  });
-
-  it('does not sanitize the request payload for GET requests', function () {
-    return server.injectThen({
+  it('does not sanitize the request payload for GET requests', () => {
+    return fixture(undefined, [{
       method: 'GET',
-      url: '/sanitize_payload'
-    })
-    .then(function (response) {
-      expect(response.payload).to.eql('');
-    })
-    .catch(function () {
-      expect.fail();
-    });
-  });
-
-  it('does not sanitize the request payload when it is not an object', function () {
-    return server.injectThen({
-      method: 'POST',
-      url: '/sanitize_payload',
-      headers: { 'content-type': 'text/plain' },
-      payload: 'foo'
-    })
-    .then(function (response) {
-      expect(response.payload).to.eql('foo')
-    })
-    .catch(function () {
-      expect.fail();
-    });
-  });
-
-  it('replaces pruned values when specified as an option', function () {
-    var replacingServer = new Hapi.Server();
-    replacingServer.connection({ port: 80 });
-
-    replacingServer.register([
-      require('inject-then'),
-      {
-        register: require('../lib'),
-        options: {
-          pruneMethod: 'replace',
-          replaceValue: null
+      path: '/',
+      config: { handler }
+    }])
+    .then((server) => {
+      return server.inject({
+        method: 'GET',
+        url: '/',
+        payload: {
+          string: 'foo'
         }
-      }
-    ], function () { });
-
-    replacingServer.route([{
-      method: 'POST',
-      path: '/sanitize_payload',
-      config: {
-        handler: function (request, reply) {
-          reply(request.payload);
-        }
-      }
-    }]);
-
-    return replacingServer.injectThen({
-      method: 'POST',
-      url: '/sanitize_payload',
-      payload: {
-        string: 'foo',
-        empty: '',
-        blank: '  \t\n ',
-        nullCharacter: '\0 '
-      }
-    })
-    .then(function (response) {
-      expect(response.result).to.eql({
-        string: 'foo',
-        empty: null,
-        blank: null,
-        nullCharacter: null
       });
-    });
-  });
-
-  it('prunes null values when specified as an option', function () {
-    var noNullServer = new Hapi.Server();
-    noNullServer.connection({ port: 80 });
-
-    noNullServer.register([
-      require('inject-then'),
-      {
-        register: require('../lib'),
-        options: {
-          stripNull: true,
-          pruneMethod: 'delete'
-        }
-      }
-    ], function () { });
-
-    noNullServer.route([{
-      method: 'POST',
-      path: '/sanitize_payload',
-      config: {
-        handler: function (request, reply) {
-          return reply(request.payload);
-        }
-      }
-    }]);
-
-    return noNullServer.injectThen({
-      method: 'POST',
-      url: '/sanitize_payload',
-      payload: {
-        thisIsNull: null,
-        thisIsNot: 'not'
-      }
     })
-    .then(function (response) {
-      expect(response.result).to.eql({
-        thisIsNot: 'not'
-      });
+    .then((response) => {
+      expect(response.result).not.to.exist;
     });
   });
 
-  it('allows plugin to be disabled', function () {
-    var noNullServer = new Hapi.Server();
-    noNullServer.connection({ port: 80 });
-
-    noNullServer.register([
-      require('inject-then'),
-      {
-        register: require('../lib'),
-        options: {
-          stripNull: true,
-          pruneMethod: 'delete'
-        }
-      }
-    ], function () { });
-
-    noNullServer.route([{
+  it('can be disabled globally', () => {
+    return fixture({ enabled: false }, [{
       method: 'POST',
-      path: '/sanitize_payload_strip_null',
-      config: {
-        handler: function (request, reply) {
-          return reply(request.payload);
+      path: '/',
+      config: { handler }
+    }])
+    .then((server) => {
+      return server.inject({
+        method: 'POST',
+        url: '/',
+        payload: {
+          empty: ''
         }
-      }
-    }, {
+      });
+    })
+    .then((response) => {
+      expect(response.result).to.eql({ empty: '' });
+    });
+  });
+
+  it('can be disabled per route', () => {
+    return fixture(undefined, [{
       method: 'POST',
-      path: '/sanitize_payload_no_strip_null',
+      path: '/',
       config: {
+        handler,
         plugins: {
           sanitize: { enabled: false }
-        },
-        handler: function (request, reply) {
-          return reply(request.payload);
         }
       }
-    }]);
-
-    var payload = {
-      thisIsNull: null,
-      thisIsNot: 'not'
-    };
-
-    return noNullServer.injectThen({ method: 'POST', url: '/sanitize_payload_strip_null', payload: payload })
-    .then(function (stripNullResponse) {
-      expect(stripNullResponse.result).to.eql({
-        thisIsNot: 'not'
+    }])
+    .then((server) => {
+      return server.inject({
+        method: 'POST',
+        url: '/',
+        payload: {
+          empty: ''
+        }
       });
-      return noNullServer.injectThen({ method: 'POST', url: '/sanitize_payload_no_strip_null', payload: payload });
     })
-    .then(function (disabledResponse) {
-      expect(disabledResponse.result).to.eql({
-        thisIsNull: null,
-        thisIsNot: 'not'
+    .then((response) => {
+      expect(response.result).to.eql({ empty: '' });
+    });
+  });
+
+  it('can configure options per route', () => {
+    return fixture(undefined, [{
+      method: 'POST',
+      path: '/',
+      config: {
+        handler,
+        plugins: {
+          sanitize: { stripNull: true }
+        }
+      }
+    }])
+    .then((server) => {
+      return server.inject({
+        method: 'POST',
+        url: '/',
+        payload: {
+          null: null
+        }
       });
+    })
+    .then((response) => {
+      expect(response.result).to.eql({});
     });
   });
 
