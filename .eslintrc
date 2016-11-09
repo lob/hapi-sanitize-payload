@@ -1,3 +1,6 @@
 {
-  extends: "eslint-config-lob"
+  extends: "lob",
+  globals: {
+    "expect": false
+  }
 }
