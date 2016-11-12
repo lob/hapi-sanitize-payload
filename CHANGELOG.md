@@ -1,3 +1,13 @@
+### 1.5.0 (2016-11-11)
+
+##### Chores
+
+* **project:** upgrade the base project ([903af702](https://github.com/lob/hapi-sanitize-payload/commit/903af702c0e35be9cf174003a76e6df69e599e0d))
+
+##### New Features
+
+* **route-options:** refactor plugin and allow per-route options ([7ae9939e](https://github.com/lob/hapi-sanitize-payload/commit/7ae9939e97a2bad6fa141cd4f393cdaad862425a))
+
 ### 1.4.0 (2016-10-18)
 
 ##### New Features
