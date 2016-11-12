@@ -4,7 +4,7 @@
   "description": "Hapi plugin to sanitize the request payload",
   "main": "lib/index.js",
   "scripts": {
-    "test": "NODE_ENV=test istanbul cover _mocha -- test --recursive --timeout 30000",
+    "test": "NODE_ENV=test istanbul cover _mocha -- test --recursive",
     "lint": "eslint .",
     "enforce": "istanbul check-coverage --statement 100 --branch 100 --function 100 --lines 100",
     "release:patch": "changelog -p && git add CHANGELOG.md && git commit -m 'updated CHANGELOG.md' && npm version patch && git push origin && git push origin --tags",
@@ -25,20 +25,20 @@
   },
   "homepage": "https://github.com/lob/hapi-sanitize-payload",
   "dependencies": {
-    "joi": "^6.10.1",
-    "is-whitespace": "^0.3.0",
+    "joi": "^9.2.0",
     "lodash.isstring": "^4.0.1",
-    "lodash.isplainobject": "^4.0.3",
-    "lodash.clonedeep": "^4.3.1"
+    "lodash.isplainobject": "^4.0.6",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.unset": "^4.5.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint": "^1.10.3",
-    "eslint-config-lob": "^1.0.1",
-    "generate-changelog": "^1.0.1",
-    "istanbul": "^0.4.2",
-    "mocha": "^2.4.5",
-    "hapi": "^9.5.1",
-    "inject-then": "^2.0.5"
+    "eslint-config-lob": "^2.3.0",
+    "eslint-plugin-lob": "^1.0.1",
+    "generate-changelog": "^1.0.2",
+    "hapi": "^15.2.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.1.2"
   }
 }
