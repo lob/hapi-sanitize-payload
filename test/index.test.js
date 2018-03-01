@@ -4,22 +4,15 @@ const Hapi = require('hapi');
 
 const Plugin = require('../lib');
 
-function fixture (options, routes) {
-  const server = new Hapi.Server();
+const fixture = async (options, routes) => {
+  const server = new Hapi.Server({ port: 80 });
 
-  server.connection({ port: 80 });
+  await server.register({ plugin: Plugin, options });
+  await server.route(routes);
+  return server;
+};
 
-  return server.register([{
-    register: Plugin,
-    options
-  }])
-  .then(() => server.route(routes))
-  .then(() => server);
-}
-
-function handler (request, reply) {
-  reply(request.payload);
-}
+const handler = async (request) => request.payload;
 
 describe('plugin', () => {
 
@@ -33,7 +26,7 @@ describe('plugin', () => {
     return fixture(undefined, [{
       method: 'GET',
       path: '/',
-      config: { handler }
+      options: { handler }
     }])
     .then((server) => {
       return server.inject({
@@ -53,7 +46,7 @@ describe('plugin', () => {
     return fixture({ enabled: false }, [{
       method: 'POST',
       path: '/',
-      config: { handler }
+      options: { handler }
     }])
     .then((server) => {
       return server.inject({
@@ -73,7 +66,7 @@ describe('plugin', () => {
     return fixture(undefined, [{
       method: 'POST',
       path: '/',
-      config: {
+      options: {
         handler,
         plugins: {
           sanitize: { enabled: false }
@@ -94,11 +87,11 @@ describe('plugin', () => {
     });
   });
 
-  it('can configure options per route', () => {
+  it('can optionsure options per route', () => {
     return fixture(undefined, [{
       method: 'POST',
       path: '/',
-      config: {
+      options: {
         handler,
         plugins: {
           sanitize: { stripNull: true }
