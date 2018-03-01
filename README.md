@@ -16,7 +16,7 @@ Currently uses the following rules:
 const Hapi = require('hapi');
 
 const registerPlugins = async (server) => Promise.all([
-    server.register({plugin: 'hapi-sanitize-payload', options: { pruneMethod: 'delete' }})
+    server.register({plugin: require('hapi-sanitize-payload'), options: { pruneMethod: 'delete' }})
 ]);
 
 ```
