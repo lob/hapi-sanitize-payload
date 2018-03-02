@@ -12,7 +12,7 @@ const fixture = async (options, routes) => {
   return server;
 };
 
-const handler = async (request) => request.payload;
+const handler = (request) => request.payload;
 
 describe('plugin', () => {
 
@@ -26,7 +26,7 @@ describe('plugin', () => {
     return fixture(undefined, [{
       method: 'GET',
       path: '/',
-      options: { handler }
+      handler
     }])
     .then((server) => {
       return server.inject({
@@ -46,7 +46,7 @@ describe('plugin', () => {
     return fixture({ enabled: false }, [{
       method: 'POST',
       path: '/',
-      options: { handler }
+      handler
     }])
     .then((server) => {
       return server.inject({
@@ -66,8 +66,8 @@ describe('plugin', () => {
     return fixture(undefined, [{
       method: 'POST',
       path: '/',
+      handler,
       options: {
-        handler,
         plugins: {
           sanitize: { enabled: false }
         }
@@ -87,12 +87,12 @@ describe('plugin', () => {
     });
   });
 
-  it('can optionsure options per route', () => {
+  it('can configure options per route', () => {
     return fixture(undefined, [{
       method: 'POST',
       path: '/',
+      handler,
       options: {
-        handler,
         plugins: {
           sanitize: { stripNull: true }
         }

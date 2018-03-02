@@ -13,11 +13,11 @@ Currently uses the following rules:
 ## Registering the plugin
 
 ```js
-const Hapi = require('hapi');
-
-const registerPlugins = async (server) => Promise.all([
-    server.register({plugin: require('hapi-sanitize-payload'), options: { pruneMethod: 'delete' }})
-]);
+const registerPlugins = async (server) => {
+    await server.register([
+        { plugin: require('hapi-sanitize-payload'), options: { pruneMethod: 'delete' } }
+    ]);
+}
 
 ```
 
@@ -33,25 +33,30 @@ const registerPlugins = async (server) => Promise.all([
 Each of the above options can be configured on a route-by-route basis via the `sanitize` plugin object.
 
 ```js
-const registerRoutes = async (server) => {
+const registerRoutes = (server) => {
     server.route({
        method: 'POST',
        path: '/users',
+       handler: () => {
+         // handler logic
+       },
        options: {
          plugins: {
            sanitize: { enabled: false }
-         },
-         handler: function () {
-           // handler logic
          }
        }
     });
 };
+```
+Setting up the server.
+```js
+try {
+  const server = new Hapi.Server();
 
-registerPlugins(server)
-    .then(() => registerRoutes())
-    .catch((err) => {
-        // Insert your preferred error handling here...
-    });
+  await registerPlugins(server);
+  registerRoutes(server);
+} catch (err) {
+  // Insert your preferred error handling here...
+}
 
 ```
