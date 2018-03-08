@@ -1,3 +1,9 @@
+## 2.0.0 (2018-03-08)
+
+##### New Features
+
+* **hapi:**  upgrade to hapi 17 ([#9](https://github.com/lob/hapi-sanitize-payload/pull/9)) ([35ef3045](https://github.com/lob/hapi-sanitize-payload/commit/35ef3045219c1663fa4c81844bf23c7adb8b88e4))
+
 ### 1.5.0 (2016-11-11)
 
 ##### Chores
