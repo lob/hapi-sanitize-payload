@@ -1,6 +1,9 @@
 {
-  extends: "lob",
-  globals: {
+  "extends": "lob",
+  "globals": {
     "expect": false
+  },
+  "parserOptions": {
+    "ecmaVersion": 8
   }
 }
