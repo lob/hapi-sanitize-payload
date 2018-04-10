@@ -32,6 +32,8 @@ server.register([
   - `'replace'` - the key will be preserved, but its value will be replaced with the value of `replaceValue`.
 - `replaceValue` - valid only when `pruneMethod` is set to `'replace'`, this value will be used as the replacement of any pruned values (ie. if configured as `null`, then `{ a: '', b: 'b' }` :arrow_right: `{ a: null, b: 'b' }`).
 - `stripNull` - a boolean value to signify whether or not `null` properties should be pruned with the same `pruneMethod` and `replaceValue` as above. Defaults to `false`.
+- `whitelist` - a boolean value to signify whether or not certain properties should be whitelisted for sanitization. Defaults to `false`.
+- `whitelistValues` - valid only when `whitelist` is set to `'true'`, this is an array of strings that will be used to whitelist certain keys for sanitization, (ie. if configured as `['a', 'c']`, then `{ a: '', b: '', c: '', d: '' }` :arrow_right: `{ b: '', d: '' }`).
 
 Each of the above options can be configured on a route-by-route basis via the `sanitize` plugin object.
 

@@ -4,6 +4,13 @@ const Sanitize = require('../lib/sanitize');
 
 describe('sanitize', () => {
 
+  const whitelistInput = {
+    key1: 'b\0ar',
+    key2: '   bye',
+    key3: '\0why  ',
+    key4: ''
+  };
+
   it('strips null characters from strings', () => {
     const input = {
       unstripped: 'foo',
@@ -116,6 +123,134 @@ describe('sanitize', () => {
     const result = Sanitize(input);
 
     expect(result).to.eql(input);
+  });
+
+  it('whitelists certain keys if whitelist = true', () => {
+    const result = Sanitize(whitelistInput, { whitelist: true, whitelistValues: ['key1', 'key3'] });
+
+    expect(result).to.eql({
+      key1: 'bar',
+      key2: '   bye',
+      key3: 'why',
+      key4: ''
+    });
+  });
+
+  it('whitelists a key if whitelist = true and whitelistValues is a string', () => {
+    const result = Sanitize(whitelistInput, { whitelist: true, whitelistValues: 'key1' });
+
+    expect(result).to.eql({
+      key1: 'bar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ''
+    });
+  });
+
+  it('whitelists all keys if whitelist = true and whitelistValues is empty', () => {
+    const result = Sanitize(whitelistInput, { whitelist: true, whitelistValues: [] });
+
+    expect(result).to.eql({
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ''
+    });
+  });
+
+  it('whitelists all keys if whitelist = true and whitelistValues has non-matching keys', () => {
+    const result = Sanitize(whitelistInput, { whitelist: true, whitelistValues: ['', 'key5', 'hi'] });
+
+    expect(result).to.eql({
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ''
+    });
+  });
+
+  it(`whitelists nested objects if whitelist = true`, () => {
+    const input = {
+      key1: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: 'test'
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: 'test'
+      },
+      key4: '\0bye '
+    };
+
+    const result = Sanitize(input, { whitelist: true, whitelistValues: ['key1'] });
+
+    expect(result).to.eql({
+      key1: {
+        nested1: 'bar',
+        nested3: 'test'
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: 'test'
+      },
+      key4: '\0bye '
+    });
+  });
+
+  it(`whitelists only top most keys in nested objects if whitelist = true`, () => {
+    const input = {
+      key1: {
+        key1: 'b\0ar',
+        key2: '',
+        key3: 'test'
+      },
+      key2: 'bye',
+      key3: {
+        key1: 'b\0ar',
+        key2: '',
+        key3: 'test'
+      }
+    };
+
+    const result = Sanitize(input, { whitelist: true, whitelistValues: ['key1'] });
+
+    expect(result).to.eql({
+      key1: {
+        key1: 'bar',
+        key3: 'test'
+      },
+      key2: 'bye',
+      key3: {
+        key1: 'b\0ar',
+        key2: '',
+        key3: 'test'
+      }
+    });
+  });
+
+  it(`does not whitelist any key if whitelist is false`, () => {
+    const result = Sanitize(whitelistInput, { whitelist: false, whitelistValues: ['key1', 'key3'] });
+
+    expect(result).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why'
+    });
+  });
+
+  it(`does not whitelist any key if whitelist is undefined`, () => {
+    const result = Sanitize(whitelistInput, { whitelist: undefined, whitelistValues: ['key1', 'key3'] });
+
+    expect(result).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why'
+    });
   });
 
 });
