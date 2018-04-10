@@ -169,19 +169,87 @@ describe('sanitize', () => {
     });
   });
 
-  [
-    ['false', false],
-    ['undefined', undefined]
-  ]
-  .forEach(([description, value]) => {
-    it(`does not whitelist any key if whitelist is ${description}`, () => {
-      const result = Sanitize(whitelistInput, { whitelist: value, whitelistValues: ['key1', 'key3'] });
+  it(`whitelists nested objects if whitelist = true`, () => {
+    const input = {
+      key1: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: 'test'
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: 'test'
+      },
+      key4: '\0bye '
+    };
 
-      expect(result).to.eql({
+    const result = Sanitize(input, { whitelist: true, whitelistValues: ['key1'] });
+
+    expect(result).to.eql({
+      key1: {
+        nested1: 'bar',
+        nested3: 'test'
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: 'test'
+      },
+      key4: '\0bye '
+    });
+  });
+
+  it(`whitelists only top most keys in nested objects if whitelist = true`, () => {
+    const input = {
+      key1: {
+        key1: 'b\0ar',
+        key2: '',
+        key3: 'test'
+      },
+      key2: 'bye',
+      key3: {
+        key1: 'b\0ar',
+        key2: '',
+        key3: 'test'
+      }
+    };
+
+    const result = Sanitize(input, { whitelist: true, whitelistValues: ['key1'] });
+
+    expect(result).to.eql({
+      key1: {
         key1: 'bar',
-        key2: 'bye',
-        key3: 'why'
-      });
+        key3: 'test'
+      },
+      key2: 'bye',
+      key3: {
+        key1: 'b\0ar',
+        key2: '',
+        key3: 'test'
+      }
+    });
+  });
+
+  it(`does not whitelist any key if whitelist is false`, () => {
+    const result = Sanitize(whitelistInput, { whitelist: false, whitelistValues: ['key1', 'key3'] });
+
+    expect(result).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why'
+    });
+  });
+
+  it(`does not whitelist any key if whitelist is undefined`, () => {
+    const result = Sanitize(whitelistInput, { whitelist: undefined, whitelistValues: ['key1', 'key3'] });
+
+    expect(result).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why'
     });
   });
 
