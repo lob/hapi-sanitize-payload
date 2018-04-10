@@ -118,4 +118,122 @@ describe('sanitize', () => {
     expect(result).to.eql(input);
   });
 
+  it('overrides options on certain keys if fieldOverride is passed in', () => {
+    const input = {
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: '',
+      key5: null
+    };
+
+    const defaultResult = Sanitize(input);
+    const overrideResult = Sanitize(input, {
+      fieldOverride: {
+        key4: {
+          pruneMethod: 'replace',
+          replaceValue: null
+        }
+      }
+    });
+
+    expect(defaultResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key5: null
+    });
+    expect(overrideResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key4: null,
+      key5: null
+    });
+  });
+
+  it('overrides options on certain keys if fieldOverride is passed in', () => {
+    const input = {
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ' ',
+      key5: null
+    };
+
+    const defaultResult = Sanitize(input);
+    const overrideResult = Sanitize(input, {
+      fieldOverride: {
+        key4: {
+          pruneMethod: 'replace',
+          replaceValue: null
+        }
+      }
+    });
+
+    expect(defaultResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key5: null
+    });
+    expect(overrideResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key4: null,
+      key5: null
+    });
+  });
+
+  it(`overrides options on nested objects if fieldOverride is passed in`, () => {
+    const input = {
+      key1: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: '  '
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: '  '
+      },
+      key4: '\0bye '
+    };
+
+    const defaultResult = Sanitize(input);
+    const overrideResult = Sanitize(input, {
+      fieldOverride: {
+        key1: {
+          pruneMethod: 'replace',
+          replaceValue: undefined
+        }
+      }
+    });
+
+    expect(defaultResult).to.eql({
+      key1: {
+        nested1: 'bar'
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'bar'
+      },
+      key4: 'bye'
+    });
+    expect(overrideResult).to.eql({
+      key1: {
+        nested1: 'bar',
+        nested2: undefined,
+        nested3: undefined
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'bar'
+      },
+      key4: 'bye'
+    });
+  });
+
 });
