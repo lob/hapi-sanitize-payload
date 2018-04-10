@@ -4,6 +4,13 @@ const Sanitize = require('../lib/sanitize');
 
 describe('sanitize', () => {
 
+  const whitelistInput = {
+    key1: 'b\0ar',
+    key2: '   bye',
+    key3: '\0why  ',
+    key4: ''
+  };
+
   it('strips null characters from strings', () => {
     const input = {
       unstripped: 'foo',
@@ -116,6 +123,66 @@ describe('sanitize', () => {
     const result = Sanitize(input);
 
     expect(result).to.eql(input);
+  });
+
+  it('whitelists certain keys if whitelist = true', () => {
+    const result = Sanitize(whitelistInput, { whitelist: true, whitelistValues: ['key1', 'key3'] });
+
+    expect(result).to.eql({
+      key1: 'bar',
+      key2: '   bye',
+      key3: 'why',
+      key4: ''
+    });
+  });
+
+  it('whitelists a key if whitelist = true and whitelistValues is a string', () => {
+    const result = Sanitize(whitelistInput, { whitelist: true, whitelistValues: 'key1' });
+
+    expect(result).to.eql({
+      key1: 'bar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ''
+    });
+  });
+
+  it('whitelists all keys if whitelist = true and whitelistValues is empty', () => {
+    const result = Sanitize(whitelistInput, { whitelist: true, whitelistValues: [] });
+
+    expect(result).to.eql({
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ''
+    });
+  });
+
+  it('whitelists all keys if whitelist = true and whitelistValues has non-matching keys', () => {
+    const result = Sanitize(whitelistInput, { whitelist: true, whitelistValues: ['', 'key5', 'hi'] });
+
+    expect(result).to.eql({
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ''
+    });
+  });
+
+  [
+    ['false', false],
+    ['undefined', undefined]
+  ]
+  .forEach(([description, value]) => {
+    it(`does not whitelist any key if whitelist is ${description}`, () => {
+      const result = Sanitize(whitelistInput, { whitelist: value, whitelistValues: ['key1', 'key3'] });
+
+      expect(result).to.eql({
+        key1: 'bar',
+        key2: 'bye',
+        key3: 'why'
+      });
+    });
   });
 
 });
