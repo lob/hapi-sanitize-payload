@@ -123,40 +123,6 @@ describe('sanitize', () => {
       key1: 'b\0ar',
       key2: '   bye',
       key3: '\0why  ',
-      key4: '',
-      key5: null
-    };
-
-    const defaultResult = Sanitize(input);
-    const overrideResult = Sanitize(input, {
-      fieldOverride: {
-        key4: {
-          pruneMethod: 'replace',
-          replaceValue: null
-        }
-      }
-    });
-
-    expect(defaultResult).to.eql({
-      key1: 'bar',
-      key2: 'bye',
-      key3: 'why',
-      key5: null
-    });
-    expect(overrideResult).to.eql({
-      key1: 'bar',
-      key2: 'bye',
-      key3: 'why',
-      key4: null,
-      key5: null
-    });
-  });
-
-  it('overrides options on certain keys if fieldOverride is passed in', () => {
-    const input = {
-      key1: 'b\0ar',
-      key2: '   bye',
-      key3: '\0why  ',
       key4: ' ',
       key5: null
     };
@@ -186,7 +152,7 @@ describe('sanitize', () => {
     });
   });
 
-  it(`overrides options on nested objects if fieldOverride is passed in`, () => {
+  it('overrides options on nested objects if fieldOverride is passed in', () => {
     const input = {
       key1: {
         nested1: 'b\0ar',
