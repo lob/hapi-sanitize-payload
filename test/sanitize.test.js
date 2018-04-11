@@ -152,6 +152,47 @@ describe('sanitize', () => {
     });
   });
 
+  it('overrides options on certain keys with existing options if fieldOverride is passed in', () => {
+    const input = {
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ' ',
+      key5: null
+    };
+
+    const defaultResult = Sanitize(input, {
+      pruneMethod: 'replace',
+      replaceValue: 'hi',
+      stripNull: true
+    });
+    const overrideResult = Sanitize(input, {
+      pruneMethod: 'replace',
+      replaceValue: 'hi',
+      stripNull: true,
+      fieldOverride: {
+        key4: {
+          replaceValue: null
+        }
+      }
+    });
+
+    expect(defaultResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key4: 'hi',
+      key5: 'hi'
+    });
+    expect(overrideResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key4: null,
+      key5: 'hi'
+    });
+  });
+
   it('overrides options on nested objects if fieldOverride is passed in', () => {
     const input = {
       key1: {
@@ -197,6 +238,68 @@ describe('sanitize', () => {
       key2: 'bye',
       key3: {
         nested1: 'bar'
+      },
+      key4: 'bye'
+    });
+  });
+
+  it('overrides options on nested objects with existing options if fieldOverride is passed in', () => {
+    const input = {
+      key1: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: '  '
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: '  '
+      },
+      key4: '\0bye '
+    };
+
+    const defaultResult = Sanitize(input, {
+      pruneMethod: 'replace',
+      replaceValue: 'hi',
+      stripNull: true
+    });
+    const overrideResult = Sanitize(input, {
+      pruneMethod: 'replace',
+      replaceValue: 'hi',
+      stripNull: true,
+      fieldOverride: {
+        key1: {
+          replaceValue: undefined
+        }
+      }
+    });
+
+    expect(defaultResult).to.eql({
+      key1: {
+        nested1: 'bar',
+        nested2: 'hi',
+        nested3: 'hi'
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'bar',
+        nested2: 'hi',
+        nested3: 'hi'
+      },
+      key4: 'bye'
+    });
+    expect(overrideResult).to.eql({
+      key1: {
+        nested1: 'bar',
+        nested2: undefined,
+        nested3: undefined
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'bar',
+        nested2: 'hi',
+        nested3: 'hi'
       },
       key4: 'bye'
     });
