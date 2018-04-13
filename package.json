@@ -1,6 +1,6 @@
 {
   "name": "hapi-sanitize-payload",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Hapi plugin to sanitize the request payload",
   "main": "lib/index.js",
   "scripts": {
