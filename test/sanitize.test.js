@@ -118,4 +118,168 @@ describe('sanitize', () => {
     expect(result).to.eql(input);
   });
 
+  it('overrides options on certain keys if fieldOverrides is passed in', () => {
+    const input = {
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ' ',
+      key5: null
+    };
+
+    const overrideResult = Sanitize(input, {
+      fieldOverrides: {
+        key4: {
+          pruneMethod: 'replace',
+          replaceValue: null
+        }
+      }
+    });
+
+    expect(overrideResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key4: null,
+      key5: null
+    });
+  });
+
+  it('overrides options on certain keys with existing options if fieldOverrides is passed in', () => {
+    const input = {
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ' ',
+      key5: null
+    };
+
+    const overrideResult = Sanitize(input, {
+      pruneMethod: 'replace',
+      replaceValue: 'hi',
+      stripNull: true,
+      fieldOverrides: {
+        key4: {
+          replaceValue: null
+        }
+      }
+    });
+
+    expect(overrideResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key4: null,
+      key5: 'hi'
+    });
+  });
+
+  it('overrides options on nested objects if fieldOverrides is passed in', () => {
+    const input = {
+      key1: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: '  '
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: '  '
+      },
+      key4: '\0bye '
+    };
+
+    const overrideResult = Sanitize(input, {
+      fieldOverrides: {
+        key1: {
+          pruneMethod: 'replace',
+          replaceValue: undefined
+        }
+      }
+    });
+
+    expect(overrideResult).to.eql({
+      key1: {
+        nested1: 'bar',
+        nested2: undefined,
+        nested3: undefined
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'bar'
+      },
+      key4: 'bye'
+    });
+  });
+
+  it('overrides options on nested objects with existing options if fieldOverrides is passed in', () => {
+    const input = {
+      key1: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: '  '
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'b\0ar',
+        nested2: '',
+        nested3: '  '
+      },
+      key4: '\0bye '
+    };
+
+    const overrideResult = Sanitize(input, {
+      pruneMethod: 'replace',
+      replaceValue: 'hi',
+      stripNull: true,
+      fieldOverrides: {
+        key1: {
+          replaceValue: undefined
+        }
+      }
+    });
+
+    expect(overrideResult).to.eql({
+      key1: {
+        nested1: 'bar',
+        nested2: undefined,
+        nested3: undefined
+      },
+      key2: 'bye',
+      key3: {
+        nested1: 'bar',
+        nested2: 'hi',
+        nested3: 'hi'
+      },
+      key4: 'bye'
+    });
+  });
+
+  it('does not override any option if fieldOverrides with nonexistent keys is passed in', () => {
+    const input = {
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ' ',
+      key5: null
+    };
+
+    const overrideResult = Sanitize(input, {
+      fieldOverrides: {
+        key6: {
+          pruneMethod: 'replace',
+          replaceValue: null
+        }
+      }
+    });
+
+    expect(overrideResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key5: null
+    });
+  });
+
 });

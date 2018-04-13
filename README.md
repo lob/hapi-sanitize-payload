@@ -32,6 +32,7 @@ server.register([
   - `'replace'` - the key will be preserved, but its value will be replaced with the value of `replaceValue`.
 - `replaceValue` - valid only when `pruneMethod` is set to `'replace'`, this value will be used as the replacement of any pruned values (ie. if configured as `null`, then `{ a: '', b: 'b' }` :arrow_right: `{ a: null, b: 'b' }`).
 - `stripNull` - a boolean value to signify whether or not `null` properties should be pruned with the same `pruneMethod` and `replaceValue` as above. Defaults to `false`.
+- `fieldOverrides` - an object where each key is a a property and its value is an object of options (`pruneMethod`, `replaceValue`, and `stripNull`). The options value overrides the default options for that given property.
 
 Each of the above options can be configured on a route-by-route basis via the `sanitize` plugin object.
 
