@@ -305,4 +305,31 @@ describe('sanitize', () => {
     });
   });
 
+  it('does not override any option if fieldOverride with nonexistent keys is passed in', () => {
+    const input = {
+      key1: 'b\0ar',
+      key2: '   bye',
+      key3: '\0why  ',
+      key4: ' ',
+      key5: null
+    };
+
+    const defaultResult = Sanitize(input);
+    const overrideResult = Sanitize(input, {
+      fieldOverride: {
+        key6: {
+          pruneMethod: 'replace',
+          replaceValue: null
+        }
+      }
+    });
+
+    expect(defaultResult).to.eql(overrideResult).to.eql({
+      key1: 'bar',
+      key2: 'bye',
+      key3: 'why',
+      key5: null
+    });
+  });
+
 });
