@@ -1,3 +1,9 @@
+### 1.6.0 (2018-04-13)
+
+##### New Features
+
+* **options:**  support property override ([#11](https://github.com/lob/hapi-sanitize-payload/pull/11)) ([ba73aba9](https://github.com/lob/hapi-sanitize-payload/commit/ba73aba9c485922d683022ada78de264013370ca))
+
 ### 1.5.0 (2016-11-11)
 
 ##### Chores
