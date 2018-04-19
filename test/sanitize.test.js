@@ -287,6 +287,7 @@ describe('sanitize', () => {
       key: {
         key2: null
       },
+      key2: null,
       other: null
     };
 
@@ -310,6 +311,7 @@ describe('sanitize', () => {
       key: {
         key2: 1
       },
+      key2: 2,
       other: 0
     });
   });
@@ -408,6 +410,9 @@ describe('sanitize', () => {
             key: null
           }
         },
+        key2: {
+          key: null
+        },
         other: null
       };
 
@@ -432,6 +437,9 @@ describe('sanitize', () => {
           key2: {
             key: 1
           }
+        },
+        key2: {
+          key: 2
         },
         other: 0
       });
