@@ -282,7 +282,7 @@ describe('sanitize', () => {
     });
   });
 
-  it('fieldOverrides do not persist to nested values', () => {
+  it('fieldOverrides do not persist to other nested values', () => {
     const input = {
       key: {
         key2: null
