@@ -282,4 +282,169 @@ describe('sanitize', () => {
     });
   });
 
+  it('fieldOverrides do not persist to other nested values', () => {
+    const input = {
+      key: {
+        key2: null
+      },
+      key2: null,
+      other: null
+    };
+
+    const options = {
+      pruneMethod: 'replace',
+      replaceValue: 0,
+      stripNull: true,
+      fieldOverrides: {
+        key: {
+          replaceValue: 1
+        },
+        key2: {
+          replaceValue: 2
+        }
+      }
+    };
+
+    const result = Sanitize(input, options);
+
+    expect(result).to.eql({
+      key: {
+        key2: 1
+      },
+      key2: 2,
+      other: 0
+    });
+  });
+
+  describe('nestedOverrides', () => {
+
+    it('uses options for nested fields', () => {
+      const input = {
+        key: null
+      };
+
+      const nestedInput = {
+        key: {
+          nested: null
+        }
+      };
+
+      const options = {
+        stripNull: true,
+        nestedOverrides: {
+          key: {
+            stripNull: false
+          }
+        }
+      };
+
+      const result = Sanitize(input, options);
+      const nestedResult = Sanitize(nestedInput, options);
+
+      expect(result).to.eql({});
+      expect(nestedResult).to.eql(nestedInput);
+    });
+
+    it('overrides fieldOverrides options', () => {
+      const input = {
+        key: {
+          nested: null
+        }
+      };
+
+      const options = {
+        pruneMethod: 'replace',
+        replaceValue: 0,
+        stripNull: true,
+        fieldOverrides: {
+          key: {
+            replaceValue: 2
+          }
+        },
+        nestedOverrides: {
+          key: {
+            replaceValue: 1
+          }
+        }
+      };
+
+      const result = Sanitize(input, options);
+
+      expect(result).to.eql({
+        key: {
+          nested: 1
+        }
+      });
+    });
+
+    it('ignores nestedOverrides if not object', () => {
+      const input = {
+        key: null
+      };
+
+      const options = {
+        pruneMethod: 'replace',
+        replaceValue: 0,
+        stripNull: true,
+        fieldOverrides: {
+          key: {
+            replaceValue: 2
+          }
+        },
+        nestedOverrides: {
+          key: {
+            replaceValue: 1
+          }
+        }
+      };
+
+      const result = Sanitize(input, options);
+
+      expect(result).to.eql({ key: 2 });
+    });
+
+    it('do not affect other nested objects', () => {
+      const input = {
+        key: {
+          key2: {
+            key: null
+          }
+        },
+        key2: {
+          key: null
+        },
+        other: null
+      };
+
+      const options = {
+        pruneMethod: 'replace',
+        replaceValue: 0,
+        stripNull: true,
+        nestedOverrides: {
+          key: {
+            replaceValue: 1
+          },
+          key2: {
+            replaceValue: 2
+          }
+        }
+      };
+
+      const result = Sanitize(input, options);
+
+      expect(result).to.eql({
+        key: {
+          key2: {
+            key: 1
+          }
+        },
+        key2: {
+          key: 2
+        },
+        other: 0
+      });
+    });
+
+  });
+
 });
