@@ -1,3 +1,24 @@
+### 1.7.0 (2018-04-19)
+
+##### New Features
+
+* **nested-overrides:**  add option ([9562b500](https://github.com/lob/hapi-sanitize-payload/commit/9562b5006304b65c658f03db5a6dc146527ba09d))
+
+##### Bug Fixes
+
+* **sanitize:**  remove Reflect dependency ([33f0796b](https://github.com/lob/hapi-sanitize-payload/commit/33f0796bebf23baa5c5a725f82678cc5aaa3e8f2))
+* **override-fields:**  remove field bleed ([dfd36c18](https://github.com/lob/hapi-sanitize-payload/commit/dfd36c1851d821ee76ae93fd468f0bfb5d659c35))
+
+##### Refactors
+
+* **sanitize:**  change delete ([b70e9440](https://github.com/lob/hapi-sanitize-payload/commit/b70e94408464c2181c42f6e10a5d7d38a19e5e7b))
+
+##### Tests
+
+* **sanitize:**
+  *  change name ([b89e052f](https://github.com/lob/hapi-sanitize-payload/commit/b89e052fce597e0af20e5567fe6fccee3ed276bc))
+  *  increase rigor ([907a3a0d](https://github.com/lob/hapi-sanitize-payload/commit/907a3a0df63c81cffcdc4a23329c795213c54cc4))
+
 ### 1.6.0 (2018-04-13)
 
 ##### New Features
