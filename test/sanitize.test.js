@@ -118,17 +118,19 @@ describe('sanitize', () => {
     expect(result).to.eql(input);
   });
 
-  it('overrides options on certain keys if fieldOverrides is passed in', () => {
+  it('overrides options on certain nested keys if nestedOptions is passed in', () => {
     const input = {
       key1: 'b\0ar',
       key2: '   bye',
       key3: '\0why  ',
-      key4: ' ',
+      key4: {
+        nested: ' '
+      },
       key5: null
     };
 
     const overrideResult = Sanitize(input, {
-      fieldOverrides: {
+      nestedOptions: {
         key4: {
           pruneMethod: 'replace',
           replaceValue: null
@@ -140,41 +142,14 @@ describe('sanitize', () => {
       key1: 'bar',
       key2: 'bye',
       key3: 'why',
-      key4: null,
+      key4: {
+        nested: null
+      },
       key5: null
     });
   });
 
-  it('overrides options on certain keys with existing options if fieldOverrides is passed in', () => {
-    const input = {
-      key1: 'b\0ar',
-      key2: '   bye',
-      key3: '\0why  ',
-      key4: ' ',
-      key5: null
-    };
-
-    const overrideResult = Sanitize(input, {
-      pruneMethod: 'replace',
-      replaceValue: 'hi',
-      stripNull: true,
-      fieldOverrides: {
-        key4: {
-          replaceValue: null
-        }
-      }
-    });
-
-    expect(overrideResult).to.eql({
-      key1: 'bar',
-      key2: 'bye',
-      key3: 'why',
-      key4: null,
-      key5: 'hi'
-    });
-  });
-
-  it('overrides options on nested objects if fieldOverrides is passed in', () => {
+  it('overrides options on nested objects if nestedOptions is passed in', () => {
     const input = {
       key1: {
         nested1: 'b\0ar',
@@ -191,7 +166,7 @@ describe('sanitize', () => {
     };
 
     const overrideResult = Sanitize(input, {
-      fieldOverrides: {
+      nestedOptions: {
         key1: {
           pruneMethod: 'replace',
           replaceValue: undefined
@@ -213,7 +188,7 @@ describe('sanitize', () => {
     });
   });
 
-  it('overrides options on nested objects with existing options if fieldOverrides is passed in', () => {
+  it('overrides options on nested objects with existing options if nestedOptions is passed in', () => {
     const input = {
       key1: {
         nested1: 'b\0ar',
@@ -233,7 +208,7 @@ describe('sanitize', () => {
       pruneMethod: 'replace',
       replaceValue: 'hi',
       stripNull: true,
-      fieldOverrides: {
+      nestedOptions: {
         key1: {
           replaceValue: undefined
         }
@@ -256,7 +231,7 @@ describe('sanitize', () => {
     });
   });
 
-  it('does not override any option if fieldOverrides with nonexistent keys is passed in', () => {
+  it('does not override any option if nestedOptions with nonexistent keys is passed in', () => {
     const input = {
       key1: 'b\0ar',
       key2: '   bye',
@@ -266,7 +241,7 @@ describe('sanitize', () => {
     };
 
     const overrideResult = Sanitize(input, {
-      fieldOverrides: {
+      nestedOptions: {
         key6: {
           pruneMethod: 'replace',
           replaceValue: null
@@ -279,6 +254,69 @@ describe('sanitize', () => {
       key2: 'bye',
       key3: 'why',
       key5: null
+    });
+  });
+
+  it('nestedOptions uses options for nested fields', () => {
+    const input = {
+      key: null
+    };
+
+    const nestedInput = {
+      key: {
+        nested: null
+      }
+    };
+
+    const options = {
+      stripNull: true,
+      nestedOptions: {
+        key: {
+          stripNull: false
+        }
+      }
+    };
+
+    const result = Sanitize(input, options);
+    const nestedResult = Sanitize(nestedInput, options);
+
+    expect(result).to.eql({});
+    expect(nestedResult).to.eql(nestedInput);
+  });
+
+  it('nestedOptions do not persist', () => {
+    const input = {
+      key: {
+        key2: {
+          key: null
+        }
+      },
+      other: null
+    };
+
+    const options = {
+      pruneMethod: 'replace',
+      replaceValue: 0,
+      stripNull: true,
+      nestedOptions: {
+        key: {
+          replaceValue: 1
+        },
+        key2: {
+          replaceValue: 2
+        }
+      }
+    };
+
+    const result = Sanitize(input, options);
+
+    expect(result).to.eql({
+      key: {
+        key2: {
+          key: 1
+        }
+      },
+      other: 0
     });
   });
 
