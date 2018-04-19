@@ -282,4 +282,36 @@ describe('sanitize', () => {
     });
   });
 
+  it('fieldOverrides do not persist to nested values', () => {
+    const input = {
+      key: {
+        key2: null
+      },
+      other: null
+    };
+
+    const options = {
+      pruneMethod: 'replace',
+      replaceValue: 0,
+      stripNull: true,
+      fieldOverrides: {
+        key: {
+          replaceValue: 1
+        },
+        key2: {
+          replaceValue: 2
+        }
+      }
+    };
+
+    const result = Sanitize(input, options);
+
+    expect(result).to.eql({
+      key: {
+        key2: 1
+      },
+      other: 0
+    });
+  });
+
 });
