@@ -112,4 +112,35 @@ describe('plugin', () => {
     });
   });
 
+  it('can track timing', () => {
+    let metricCalled = false;
+
+    return fixture(undefined, [{
+      method: 'POST',
+      path: '/',
+      handler,
+      options: {
+        plugins: {
+          sanitize: { timing: (ms) => {
+            metricCalled = true;
+            expect(typeof ms).to.eql('number');
+            expect(ms).to.be.within(0, 100);
+          }}
+        }
+      }
+    }])
+    .then((server) => {
+      return server.inject({
+        method: 'POST',
+        url: '/',
+        payload: {
+          null: null
+        }
+      });
+    })
+    .then((response) => {
+      expect(metricCalled).to.eql(true);
+    });
+  });
+
 });
